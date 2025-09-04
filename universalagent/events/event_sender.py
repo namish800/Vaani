@@ -4,6 +4,7 @@ Simple event sender for transcript and metrics data.
 """
 
 import logging
+import os
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
@@ -36,13 +37,19 @@ class EventSender:
             transcript_webhook_url: URL for transcript webhooks
             metrics_webhook_url: URL for metrics webhooks
         """
+        logger.info(f"Initializing event sender with transcript_webhook_url: {transcript_webhook_url} and metrics_webhook_url: {metrics_webhook_url}")
+
+        headers = {
+            "Authorization": "Bearer " + os.getenv("COMPLETION_WEBHOOK_TOKEN"),
+            "Content-Type": "application/json"
+        }
         self.transcript_client = None
         if transcript_webhook_url:
-            self.transcript_client = WebhookClient(transcript_webhook_url)
+            self.transcript_client = WebhookClient(transcript_webhook_url, headers)
 
         self.metrics_client = None
         if metrics_webhook_url:
-            self.metrics_client = WebhookClient(metrics_webhook_url)
+            self.metrics_client = WebhookClient(metrics_webhook_url, headers)
 
         self.transcript_formatter = MarkdownFormatter().format
 
